@@ -1,6 +1,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -25,6 +26,25 @@ body {
   padding: 0;
   background-color: #666;
 }
+.bgCover { background:#000; position:absolute; left:0; top:0; display:none; overflow:hidden }
+.overlayBox {
+        border:5px solid #09F;
+        position:absolute;
+        display:none;
+        width:90%;
+        height:80%;
+        background:#fff;
+}
+.overlayContent {
+        padding:10px;
+        height:95%;
+        width:95%
+}
+.closeLink {
+        float:right;
+        color:red;
+}
+
 a {
   color: #bce;
   text-decoration: none;
@@ -38,6 +58,8 @@ select {
   font-weight: normal;
   padding-top: 0.2em;
 }
+
+
 #menu input,
 #login input {
   width: 150px;
@@ -181,3 +203,4 @@ select {
 #close a, #close:link, #close:visited {
   color: #5070af;
 }
+

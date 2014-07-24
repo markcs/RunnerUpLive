@@ -80,7 +80,7 @@ function displayTrack(xml,update) {
       setTimeout(function(){google.maps.event.removeListener(zListener)}, 2000);  
     }
   }
-  latestTime = p.dateoccured;
+  latestTime = p.dateAdded;
   polies.push(poly);
   
   updateSummary(p.dateoccured,totalMeters,totalSeconds);
@@ -124,20 +124,21 @@ function setMarker(p,i,posLen) {
   if (latest==1) { marker.setIcon('http://maps.google.com/mapfiles/dd-end.png') }
   else if (i==0) { marker.setIcon('http://maps.google.com/mapfiles/marker_greenA.png') }
   else if (i==posLen-1) { marker.setIcon('http://maps.google.com/mapfiles/markerB.png') }
-  else { marker.setIcon('http://labs.google.com/ridefinder/images/mm_20_gray.png') }
+//  else { marker.setIcon('http://labs.google.com/ridefinder/images/mm_20_gray.png') }
+//    else { marker.setVisible(false) }
+    else { marker.setIcon('http://maps.gstatic.com/intl/en_us/mapfiles/markers2/measle_blue.png') }
   // popup
   var content = '<div id="popup">'+
     '<div id="pheader">'+lang_user+': '+p.username.toUpperCase()+'<br />'+lang_track+': '+p.trackname.toUpperCase()+
     '</div>'+
     '<div id="pbody">'+
     ((p.comments != null)?'<div id="pcomments">'+p.comments+'</div>':'')+
-    '<div id="pleft"><b>'+lang_time+':</b> '+p.dateoccured+'<br />'+
-    ((p.speed != null)?'<b>'+lang_speed+':</b> '+(p.speed.toKmH()*factor_kmh)+' '+unit_kmh+'<br />':'')+
+    '<div id="pleft"><b>'+lang_time+':</b> '+p.dateadded+'<br />'+
+    ((p.speed != null)?'<b>'+lang_speed+':</b> '+(p.speed)+' '+unit_kmh+'<br />':'')+
     ((p.altitude != null)?'<b>'+lang_altitude+':</b> '+(p.altitude*factor_m).toFixed()+' '+unit_m+'<br />':'')+'</div>'+
     ((latest==0)?
-    ('<div id="pright"><b>'+lang_ttime+':</b> '+p.totalSeconds.toHMS()+'<br />'+
-    '<b>'+lang_aspeed+':</b> '+((p.totalSeconds>0)?((p.totalMeters/p.totalSeconds).toKmH()*factor_kmh).toFixed():0)+' '+unit_kmh+'<br />'+
-    '<b>'+lang_tdistance+':</b> '+(p.totalMeters.toKm()*factor_km).toFixed(2)+' '+unit_km+'<br />'+'</div>'):'')+
+    ('<div id="pright"><b>'+lang_ttime+':</b> '+p.totaltime+'<br />'+
+    '<b>'+lang_tdistance+':</b> '+p.totaldistance+' '+unit_m+'<br />'+'</div>'):'')+
     '<div id="pfooter">'+lang_point+' '+(i+1)+' '+lang_of+' '+(posLen)+'</div>'+
     '</div></div>';    
   popup = new google.maps.InfoWindow();

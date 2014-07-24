@@ -6,21 +6,8 @@
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-CREATE DATABASE IF NOT EXISTS `trackme` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `trackme`;
-
-CREATE TABLE IF NOT EXISTS `cellids` (
-  `ID` int(11) NOT NULL auto_increment,
-  `CellID` varchar(255) NOT NULL,
-  `Latitude` double NOT NULL,
-  `Longitude` double NOT NULL,
-  `DateAdded` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `SignalStrength` int(11) default NULL,
-  `SignalStrengthMax` int(11) default NULL,
-  `SignalStrengthMin` int(11) default NULL,
-  PRIMARY KEY  (`ID`),
-  KEY `Index_CellID` (`CellID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+CREATE DATABASE IF NOT EXISTS `runneruplive` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `runneruplive`;
 
 CREATE TABLE IF NOT EXISTS `icons` (
   `ID` int(11) NOT NULL auto_increment,
@@ -29,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `icons` (
   PRIMARY KEY  (`ID`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+           
 CREATE TABLE IF NOT EXISTS `positions` (
   `ID` int(11) NOT NULL auto_increment,
   `FK_Users_ID` int(11) NOT NULL,
@@ -36,17 +24,11 @@ CREATE TABLE IF NOT EXISTS `positions` (
   `FK_Icons_ID` int(11) default NULL,
   `Latitude` double NOT NULL,
   `Longitude` double NOT NULL,
-  `Altitude` double default '0',
-  `Speed` double default '0',
-  `Angle` double default NULL,
+  `Pace` varchar(255) default NULL,
   `DateAdded` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `DateOccurred` timestamp NULL default '0000-00-00 00:00:00',
-  `Comments` varchar(255) default NULL,
-  `ImageURL` varchar(255) default NULL,
-  `SignalStrength` int(11) default NULL,
-  `SignalStrengthMax` int(11) default NULL,
-  `SignalStrengthMin` int(11) default NULL,
-  `BatteryStatus` tinyint(4) default NULL,
+  `TotalDistance` int(11) default NULL,
+  `TotalTime` varchar(255) default NULL,
+  `EventType` int(11) default NULL,
   PRIMARY KEY  (`ID`),
   KEY `Index_FK_Trips_ID` (`FK_Trips_ID`),
   KEY `Index_FK_Users_ID` (`FK_Users_ID`)

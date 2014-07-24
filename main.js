@@ -1,6 +1,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -28,7 +29,7 @@ if (units=='imperial') {
 } 
 else {
   factor_kmh = 1;
-  unit_kmh = 'km/h';
+  unit_kmh = '/km';
   factor_m = 1;
   unit_m = 'm';
   factor_km = 1;
@@ -119,7 +120,7 @@ function loadTrack(userid,trackid,update) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState==4 && xhr.status==200) {
       var xml = xhr.responseXML;
-      var positions = xml.getElementsByTagName('position');
+      var positions = xml.getElementsByTagName('position');      
       if (positions.length>0) {  
         clearMap();        
         displayTrack(xml,update);
@@ -135,32 +136,40 @@ function parsePosition(p) {
     // read data
   var latitude = getNode(p,'latitude');
   var longitude = getNode(p,'longitude');
-  var altitude = getNode(p,'altitude'); // may be null
-  if (altitude != null) { altitude = parseInt(altitude); }
-  var speed = getNode(p,'speed'); // may be null
-  if (speed != null) { speed = parseInt(speed); }
-  var angle = getNode(p,'angle'); // may be null
-  if (angle != null) { angle = parseInt(angle); }
-  var comments = getNode(p,'comments'); // may be null
+  var altitude = 0; // may be null
+  //if (altitude != null) { altitude = parseInt(altitude); }
+  var speed = getNode(p,'pace'); // may be null
+  //speed = 1;
+  // var speed = 0;
+  //if (speed != null) { speed = parseInt(speed); }
+  //var angle = getNode(p,'angle'); // may be null
+  var angle = 0;
+  //if (angle != null) { angle = parseInt(angle); }
+  //var comments = getNode(p,'comments'); // may be null
+  var comments = "";
   var username = getNode(p,'username');
   var trackname = getNode(p,'trackname');
   var tid = getNode(p,'trackid');
-  var dateoccured = getNode(p,'dateoccured');
+  var dateadded = getNode(p,'dateadded');
   var distance = parseInt(getNode(p,'distance'));
   var seconds = parseInt(getNode(p,'seconds'));
+  var TotalDistance = parseInt(getNode(p,'TotalDistance'));
+  var TotalTime = getNode(p,'TotalTime');
+  var EventType = getNode(p,'EventType');
   return {
     'latitude': latitude,
     'longitude': longitude,
-    'altitude': altitude,
-    'speed': speed,
-    'angle': angle,
-    'comments': comments,
+    'speed' : speed,
+    'angle' : angle,
     'username': username,
     'trackname': trackname,
     'tid': tid,
-    'dateoccured': dateoccured,
+    'dateadded': dateadded,
     'distance': distance,
-    'seconds': seconds
+    'seconds': seconds,
+    'totaldistance' : TotalDistance,
+    'totaltime' : TotalTime,
+    'EventType' : EventType,
   }; 
 }
 
@@ -397,3 +406,46 @@ function setUnits(unit) {
   setCookie('units',unit,30);
   location.reload();
 }
+
+function showOverlayBox() {
+        //if box is not set to open then don't do anything
+        if( isOpen == false ) return;
+        // set the properties of the overlay box, the left and top positions
+        $('.overlayBox').css({
+                display:'block',
+                left:( $(window).width() - $('.overlayBox').width() )/2,
+                top:( $(window).height() - $('.overlayBox').height() )/2 - 20,
+                position:'absolute'
+        });
+        // set the window background for the overlay. i.e the body becomes darker
+        $('.bgCover').css({
+                display:'block',
+                width: $(window).width(),
+                height:$(window).height(),
+        });
+}
+function doOverlayOpen() {
+        //set status to open
+        isOpen = true;
+        showOverlayBox();
+        $('.bgCover').css({opacity:0}).animate( {opacity:0.5, backgroundColor:'#000'} );
+        // dont follow the link : so return false.
+        return false;
+}
+function doOverlayClose() {
+        //set status to closed
+        isOpen = false;
+        $('.overlayBox').css( 'display', 'none' );
+        // now animate the background to fade out to opacity 0
+        // and then hide it after the animation is complete.
+        $('.bgCover').animate( {opacity:0}, null, null, function() { $(this).hide(); } );
+}
+
+// if window is resized then reposition the overlay box
+$(window).bind('resize',showOverlayBox);
+// activate when the link with class launchLink is clicked
+$('a.launchLink').click( doOverlayOpen );
+// close it when closeLink is clicked
+$('a.closeLink').click( doOverlayClose );
+
+

@@ -2,6 +2,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -17,45 +18,32 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-$version = "2.2"; 
+$version = "0.1"; 
 
-// default map drawing framework 
-// (gmaps = google maps, openlayers = openlayers/osm)
-//$mapapi = "gmaps";
-$mapapi = "openlayers";
-
-// openlayers additional map layers
-// OpenCycleMap (0 = no, 1 = yes)
-$layer_ocm = 1;
-// MapQuest-OSM (0 = no, 1 = yes)
-$layer_mq = 1;
-// osmapa.pl (0 = no, 1 = yes)
-$layer_osmapa = 1;
-// UMP (0 = no, 1 = yes)
-$layer_ump = 1;
+$mapapi = "gmaps";
 
 // you may set your google maps api key
 // this is not obligatory by now
-//$gkey = "";
+// $gkey = "AIzaSyC2CYwhwpM2NLhTm6L6ZKg9-SBpvft4P4U";
 
 // MySQL config
-$dbhost = ""; // mysql host, eg. localhost
-$dbuser = ""; // database user
-$dbpass = ""; // database pass
-$dbname = ""; // database name
+$dbhost = "127.0.0.1"; // mysql host, eg. localhost
+$dbuser = "user"; // database user
+$dbpass = "pass"; // database pass
+$dbname = "runneruplive"; // database name
 $salt = ""; // fill in random string here, it will increase security of password hashes
 
 // other
 // require login/password authentication 
 // (0 = no, 1 = yes)
-$require_authentication = 1;
+$require_authentication = 0;
 
 // admin user who has access to all users locations
-$admin_user = "";
+$admin_user = " ";
 
 // allow automatic registration of new users 
 // (0 = no, 1 = yes)
-$allow_registration = 0;
+$allow_registration = 1;
 
 // Default interval in seconds for live auto reload
 $interval = 10; 
@@ -67,8 +55,6 @@ $lang = "en";
 //$lang = "de";
 
 // units
-// (metric, imperial)
 $units = "metric";
-//$units = "imperial";
 
 ?>

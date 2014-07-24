@@ -2,6 +2,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -21,21 +22,35 @@
 // http://forum.xda-developers.com/showpost.php?p=3250539&postcount=2
 
 require_once("config.php");
-$user = (isset($_REQUEST['u']) ? $_REQUEST['u'] : "");
-$pass = (isset($_REQUEST['p']) ? md5($salt.$_REQUEST['p']) : "");
-$requireddb = (isset($_REQUEST['db']) ? $_REQUEST['db'] : 0);
-$tripname = (isset($_REQUEST['tn']) ? $_REQUEST['tn'] : "");
-$action = (isset($_REQUEST['a']) ? $_REQUEST['a'] : "");
+$debug = 0;
+$activityType = array("","Running", "Bike");
+$inputJSON = file_get_contents('php://input');
 
-// If the client uses Backitude then define the tripname as user-date
-if ($requireddb == 'backitude') {
-   $tripname = $user.'-'.date("Ymd");
-}
-// FIXME what is it for?
-elseif ($requireddb<8) {
-  //Result:5 Incompatible database.
-  quit(5);
-}
+
+    $input= json_decode( $inputJSON, TRUE ); //convert JSON into array
+    $user = $input['userName'];
+    $pass = $input['password'];
+    $lat = $input['lat'];
+    $long = $input['long'];
+    $pace = $input['Pace'];
+    $TotalDistance = $input['TotalDistance'];
+    $eventType = $input['runningEventType'];
+    $TotalTime = $input['TotalTime'];
+    $dateoccurred = time();
+    $tripname = $user.'-'.date("Ymd"); 
+    $iconid = 50;
+//    error_log("$tripname");
+//    foreach ($input as $key => $value) {
+//        echo "<tr>";
+//        echo "<td>";
+//        echo $key;
+//        echo "</td>";
+//        echo "<td>";
+//        echo $value;
+//        echo "</td>";
+//        echo "</tr>";
+//        error_log("key $key value $value");
+//    }
 
 $mysqli = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
 if ($mysqli->connect_errno) {
@@ -43,11 +58,11 @@ if ($mysqli->connect_errno) {
   quit(4);
 }
 
-if ((!$user) || (!$pass)){
+if ((!$user) || (!$pass)){ 
   //Result:3 User or password not specified.
+  error_log("user or pass not specified ($user / $pass)");
   quit(3);
 }
-
 $query = $mysqli->prepare("SELECT ID,username,password FROM users WHERE username=? LIMIT 1");
 $query->bind_param('s', $user);
 $query->execute();
@@ -57,9 +72,11 @@ $query->fetch();
 $num = $query->num_rows;
 $query->free_result();
 $query->close();
+
 if ($num) {
   if (($user==$rec_user) && ($pass!=$rec_pass)) {
     //Result:1 User correct, invalid password.
+    error_log("user correct, invalid password ($user / $pass <> $rec_pass)");
     quit(1);
   }
 }
@@ -74,141 +91,57 @@ else {
     if (!$userid) {
       //Result:2 User did not exist but after being created couldn't be found.
       // Or rather something went wrong while updating database
-      quit(2);
+    error_log("User not created");
+    quit(2);
     }
-  }
+  } 
   else {
     // User unknown, we don't allow autoregistration
     // Let's use this one:
     //Result:1 User correct, invalid password.
-    quit(1);
+    error_log("User unknown");
+    quit(1);    
   }
 }
 
-switch($action) {
-  // action: noop
-  case "noop":
-    // test
-    quit(0);
-    break;
-
-  // action: deletetrip
-  case "deletetrip":
-    if ($tripname) {
-      $sql = "DELETE FROM positions LEFT JOIN trips ON positions.FK_Trips_ID=trips.ID "
-            ."WHERE positions.FK_Users_ID=? AND trips.Name=?";
-      $query = $mysqli->prepare($sql);
-      if ($query) {
-        $query->bind_param('is', $userid, $tripname);
-        $query->execute();
-        $query->close();
-      }
-      $sql = "DELETE FROM trips WHERE FK_Users_ID=? AND Name=?";
-      $query = $mysqli->prepare($sql);
-      $query->bind_param('is', $userid, $tripname);
-      $query->execute();
-      $rows = $mysqli->affected_rows;
-      $query->close();
-      if ($rows) {
-        quit(0);
-      }
-      else {
-        //Result:7 Trip not found
-        quit(7);
-      }
-    }
-    else {
-      //Result:6 Trip not specified.
-      quit(6);
-    }
-    break;
-
-  // action: addtrip
-  case "addtrip":
-    if ($tripname) {
-      $sql = "INSERT INTO trips (FK_Users_ID,Name) VALUES (?,?)";
-      $query = $mysqli->prepare($sql);
-      $query->bind_param('is', $userid, $tripname);
-      $query->execute();
-      $query->close();
-    }
-    else {
-      //Result:6 Trip not specified.
-      quit(6);
-    }
-    break;
-
-  // action: gettriplist
-  case "gettriplist":
-    $sql = "SELECT a1.Name,(SELECT MIN(a2.DateOccurred) FROM positions a2 "
-        ."WHERE a2.FK_Trips_ID=a1.ID) AS startdate "
-        ."FROM trips a1 WHERE a1.FK_Users_ID=? ORDER BY Name";
-    $query = $mysqli->prepare($sql);
-    $query->bind_param('i', $userid);
-    $query->execute();
-    $query->store_result();
-    $query->bind_result($tripname,$startdate);
-    $num = $query->num_rows;
-    $triplist = array();
-    if ($num) {
-      while ($query->fetch()) {
-        $triplist[] = $tripname."|".$startdate;
-      }
-    }
-    $query->free_result();
-    $query->close();
-    $param = implode("\n",$triplist);
-    quit(0,$param);
-    break;
-
-  // action: upload
-  case "upload":
-    $lat = isset($_REQUEST["lat"]) ? $_REQUEST["lat"] : NULL;
-    $long = isset($_REQUEST["long"]) ? $_REQUEST["long"] : NULL;
-    // If the client uses Backitude then convert the date into handled format
-    $dateoccurred = isset($_REQUEST["do"]) ? $_REQUEST["do"] : NULL;
-    $altitude = isset($_REQUEST["alt"]) ? $_REQUEST["alt"] : NULL;
-    $angle = isset($_REQUEST["ang"]) ? $_REQUEST["ang"] : NULL;
-    $speed = isset($_REQUEST["sp"]) ? $_REQUEST["sp"] : NULL;
-    $iconname = isset($_REQUEST["iconname"]) ? $_REQUEST["iconname"] : NULL;
-    $comments = isset($_REQUEST["comments"]) ? $_REQUEST["comments"] : NULL;
-    $imageurl = isset($_REQUEST["imageurl"]) ? $_REQUEST["imageurl"] : NULL;
-    $cellid = isset($_REQUEST["cid"]) ? $_REQUEST["cid"] : NULL;
-    $signalstrength = isset($_REQUEST["ss"]) ? $_REQUEST["ss"] : NULL;
-    $signalstrengthmax = isset($_REQUEST["ssmax"]) ? $_REQUEST["ssmax"] : NULL;
-    $signalstrengthmin = isset($_REQUEST["ssmin"]) ? $_REQUEST["ssmin"] : NULL;
-    $batterystatus = isset($_REQUEST["bs"]) ? $_REQUEST["bs"] : NULL;
-    $uploadss = isset($_REQUEST["upss"]) ? $_REQUEST["upss"] : NULL; // FIXME is it needed?
-    $iconid = NULL;
-    if ($iconname) {
-      $sql = "SELECT ID FROM icons WHERE Name=? LIMIT 1";
-      $query = $mysqli->prepare($sql);
-      $query->bind_param('s', $iconname);
-      $query->execute();
-      $query->store_result();
-      $query->bind_result($id);
-      $query->fetch();
-      $num = $query->num_rows;
-      $query->free_result();
-      $query->close();
-      if ($num) {
-        $iconid = $id;
-      }
-    }
-    $tripid = NULL; // FIXME: not sure what trips with null id are
-    if ($tripname) {
+   if ($tripname) {
       // get tripid
-      $query = $mysqli->prepare("SELECT ID FROM trips WHERE FK_Users_ID=? AND Name=? LIMIT 1");
-      $query->bind_param('is', $userid, $tripname);
+      //$query = $mysqli->prepare("SELECT ID FROM trips WHERE FK_Users_ID=? AND Name=? LIMIT 1");      
+      //$query->bind_param('is', $userid, $tripname);
+      $query = $mysqli->prepare("SELECT ID,Name FROM trips WHERE FK_Users_ID=? AND Name LIKE '$tripname%' ORDER BY Name DESC limit 1");
+      $query->bind_param('i', $userid );
       $query->execute();
       $query->store_result();
-      $query->bind_result($tripid);
+      $query->bind_result($tripid,$tripname);
       $query->fetch();
       $num = $query->num_rows;
       $query->free_result();
       $query->close();
-      if (!$num) {
+            
+      $query = $mysqli->prepare("SELECT EventType FROM positions where FK_Users_ID=? and FK_Trips_ID=? ORDER BY ID DESC limit 1");
+      $query->bind_param('ii', $userid, $tripid);
+      $query->execute();
+      $query->store_result();
+      $query->bind_result($eventTypeLast);
+      $query->fetch();
+      $query->free_result();
+      $query->close();     
+                         
+      if ((!$num) || ($eventTypeLast == 3)) {
         // create trip
+        error_log("create trip");
+        if (substr_count($tripname, '-') == 1) {
+           $tripname = $tripname."-1";
+           error_log("create trip 1 $tripname");
+        }
+        else {
+           $ptn = "/(.*)-(\d+$)/";
+           preg_match($ptn, $tripname, $matches);
+           $matches[2]=$matches[2]+1;
+           $tripname = $matches[1]."-".$matches[2];
+           error_log("create trip regex 2 $tripname");
+        }
+
         $query = $mysqli->prepare("INSERT INTO trips (FK_Users_ID,Name) VALUES (?,?)");
         $query->bind_param('is', $userid, $tripname);
         $query->execute();
@@ -218,64 +151,33 @@ switch($action) {
           //Result:6 Trip didn't exist and system was unable to create it.
           quit(6);
         }
-      }
     }
-     if ($requireddb == 'backitude') {
-         $sql = "INSERT INTO positions "
-               ."(FK_Users_ID,FK_Trips_ID,Latitude,Longitude,DateOccurred,FK_Icons_ID,"
-               ."Speed,Altitude,Comments,ImageURL,Angle,SignalStrength,SignalStrengthMax,"
-               ."SignalStrengthMin,BatteryStatus) VALUES (?,?,?,?,FROM_UNIXTIME(?),?,?,?,?,?,?,?,?,?,?)";
-     } else {
-         $sql = "INSERT INTO positions "
-               ."(FK_Users_ID,FK_Trips_ID,Latitude,Longitude,DateOccurred,FK_Icons_ID,"
-               ."Speed,Altitude,Comments,ImageURL,Angle,SignalStrength,SignalStrengthMax,"
-               ."SignalStrengthMin,BatteryStatus) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-     }
-
+   
+    $sql = "INSERT INTO positions "
+          ."(FK_Users_ID,FK_Trips_ID,Latitude,Longitude,FK_Icons_ID,"
+          ."Pace,TotalDistance,TotalTime,EventType) VALUES (?,?,?,?,?,?,?,?,?)";
     $query = $mysqli->prepare($sql);
-    $query->bind_param('iiddsiddssdiiii',
-            $userid,$tripid,$lat,$long,$dateoccurred,$iconid,
-            $speed,$altitude,$comments,$imageurl,$angle,$signalstrength,$signalstrengthmax,
-            $signalstrengthmin,$batterystatus);
+    $query->bind_param('iiddisisi',$userid,$tripid,$lat,$long,$iconid,$pace,$TotalDistance,$TotalTime,$eventType);
+
     $query->execute();
     $query->close();
     if ($mysqli->errno) {
       //Result:7|SQLERROR   Insert statement failed.
+      error_log("Mysql error on upload 1");
       quit(7,$mysqli->error);
     }
-    //FIXME Are cellids used in Android client?
-    $upcellext = isset($_REQUEST["upcellext"]) ? $_REQUEST["upcellext"] : NULL;
-    if ($upcellext==1 && $cellid) {
-      $sql = "INSERT INTO cellids (CellID,Latitude,Longitude,SignalStrength,SignalStrengthMax,SignalStrengthMin) "
-            ."VALUES (?,?,?,?,?,?)";
-      $query = $mysqli->prepare($sql);
-      $query->bind_param('sddiii',$cellid,$lat,$long,$signalstrength,$signalstrengthmax,$signalstrengthmin);
-      $query->execute();
-      $query->close();
-      if ($mysqli->errno) {
-        //Result:7|SQLERROR   Insert statement failed.
-        quit(7,$mysqli->error);
-      }
-    }
+    error_log("finish upload");
     quit(0);
     break;
-
-  // action: geticonlist
-  // action: renametrip
-  // action: findclosestbuddy
-  // action: delete
-  // action: sendemail
-  // action: updateimageurl
-  // action: findclosestpositionbytime
-  // action: findclosestpositionbyposition
-  // action: gettripinfo
-  // action: gettriphighlights
 }
 
 function quit($errno,$param=""){
   print "Result:".$errno.(($param)?"|$param":"");
+//  error_log( "Result:".$errno.(($param)?"|$param":""));
+
   exit();
 }
 
 $mysqli->close();
 ?>
+

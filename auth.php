@@ -2,6 +2,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -64,7 +65,7 @@ if ($require_authentication) {
       <div id="login">
         <div id="title">'.$lang_title.'</div>
         <div id="subtitle">'.$lang_private.'</div>
-        <form action="index.php" method="post">
+        <form action="index1.php" method="post">
         '.$lang_username.':<br />
         <input type="text" name="user"><br />
         '.$lang_password.':<br />
@@ -104,7 +105,7 @@ if ($require_authentication) {
       else {
           $_SESSION['auth'] = $rec_ID;
       }
-      $url = str_replace("//", "/", $_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/index.php");
+      $url = str_replace("//", "/", $_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/index1.php");
       header("Location: $ssl://$url");
       exit;    
     } else {
@@ -117,7 +118,7 @@ if ($require_authentication) {
       }
       session_destroy();  
       $mysqli->close();    
-      $url = str_replace("//", "/", $_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/index.php");
+      $url = str_replace("//", "/", $_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/index1.php");
       header("Location: $ssl://$url$error");
       exit;
     }

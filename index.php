@@ -2,6 +2,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -19,24 +20,24 @@
  */
 require_once("config.php");
 require_once("auth.php");
+$user = "";
 
-if (($auth) and ($auth != $admin_user)) {
+if (($auth) and ($auth != $admin_user) and ($require_authentication)) {
   // get username
+  error_log("here");
   $query = "SELECT username FROM users WHERE ID='$auth' LIMIT 1"; 
   $result = $mysqli->query($query);
   $row = $result->fetch_assoc();
   $user = $row["username"];
-  
-  // users
-  $user_form = '<u>'.$lang_user.'</u><br />'.$user.' (<a href="logout.php">'.$lang_logout.'</a>)';
 } 
 else {
   // free access or admin user
-  // prepare user select form
+  // prepare user select form  
   if (($auth == $admin_user) and ($admin_user != "")) {
      $user = $auth;
      $auth = NULL;
   }
+  
   $user_form = '
   <u>'.$lang_user.'</u><br />
   <form>
@@ -51,7 +52,10 @@ $user_form .= '
 </select>
 </form>
 ';
-  $user_form .= '<u>'.$lang_user.'</u><br />'.$user.' (<a href="logout.php">'.$lang_logout.'</a>)';
+}
+
+if ($require_authentication) {
+	   $user_form .= '<u>'.$lang_user.'</u><br />'.$user.' (<a href="logout.php">'.$lang_logout.'</a>)';
 }
 
 // prepare track select form
@@ -176,14 +180,8 @@ print '
         <div id="other">
           <a href="javascript:void(0);" onclick="toggleChart();">'.$lang_chart.'</a>
         </div>
-        <div id="api">  
-          '.$api_form.'
-        </div>
         <div id="lang">  
           '.$lang_form.'
-        </div>
-        <div id="units">  
-          '.$units_form.'
         </div>
         <div id="export">
           <u>'.$lang_download.'</u><br />
@@ -192,7 +190,7 @@ print '
         </div>
       </div>
       <div id="menu-close" onclick="toggleMenu();">»</div>
-      <div id="footer"><a target="_blank" href="https://github.com/bfabiszewski/phpTrackme">phpTrackme</a> '.$version.'</div>
+      <div id="footer"><a target="_blank" href="https://github.com/markcs/RunnerUpLive">RunnerUpLive (markcs)</a> '.$version.'</div>
     </div>
     <div id="main">
       <div id="map-canvas"></div>

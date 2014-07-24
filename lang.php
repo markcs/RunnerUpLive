@@ -2,6 +2,7 @@
 /* phpTrackme
  *
  * Copyright(C) 2013 Bartek Fabiszewski (www.fabiszewski.net)
+ * Copyright(C) 2014 Mark Campbell-Smith (campbellsmith.me)
  *
  * This is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Library General Public License as published by
@@ -20,7 +21,7 @@
 switch($lang) {
   default:
   case "en":
-    $lang_title = "• phpTrackme •";
+    $lang_title = "• RunnerUpLive •";
     $lang_private = "You need login and password to access this page.";
     $lang_authfail = "Wrong username or password";
     $lang_user = "User";

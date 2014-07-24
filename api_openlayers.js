@@ -116,7 +116,7 @@ function displayTrack(xml,update) {
       map.zoomOut();
     }
   }
-  latestTime = p.dateoccured;
+  latestTime = p.dateAdded;
   //polies.push(poly);
   
   updateSummary(p.dateoccured,totalMeters,totalSeconds);
@@ -163,7 +163,7 @@ function setMarker(p,i,posLen) {
     '</div>'+
     '<div id="pbody">'+
     ((p.comments != null)?'<div id="pcomments">'+p.comments+'</div>':'')+
-    '<div id="pleft"><b>'+lang_time+':</b> '+p.dateoccured+'<br />'+
+    '<div id="pleft"><b>'+lang_time+':</b> '+p.dateAdded+'<br />'+
     ((p.speed != null)?'<b>'+lang_speed+':</b> '+(p.speed.toKmH()*factor_kmh)+' '+unit_kmh+'<br />':'')+
     ((p.altitude != null)?'<b>'+lang_altitude+':</b> '+(p.altitude*factor_m).toFixed()+' '+unit_m+'<br />':'')+'</div>'+
     ((latest==0)?
