@@ -166,7 +166,6 @@ else {
       error_log("Mysql error on upload 1");
       quit(7,$mysqli->error);
     }
-    error_log("finish upload");
     quit(0);
     break;
 }
