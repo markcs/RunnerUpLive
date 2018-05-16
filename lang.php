@@ -123,6 +123,41 @@ switch($lang) {
     $lang_units = "Maßsystem";
     $lang_metric = "Metrisches";
     $lang_imperial = "Angloamerikanisches";
-    break;    
+    break;
+
+  case "sv":
+    $lang_title = "• RunnerUpLive •";
+    $lang_private = "Du behöver användare och lösenord för att komma åt den här sidan.";
+    $lang_authfail = "Fel användare eller lösenord";
+    $lang_user = "Användare";
+    $lang_track = "Spår";
+    $lang_latest = "senaste position";
+    $lang_autoreload = "auto-omladdning";
+    $lang_reload = "Ladda om nu";
+    $lang_download = "Ladda ner data";
+    $lang_chart = "Höjd-diagram";
+    $lang_close = "stäng";
+    $lang_time = "Tid";
+    $lang_speed = "Hastighet";
+    $lang_altitude = "Höjd";
+    $lang_ttime = "Total tid";
+    $lang_aspeed = "Snitthastighet";
+    $lang_tdistance = "Total dist.";
+    $lang_point = "Punkt"; //Point x of y
+    $lang_of = "av";
+    $lang_summary = "Tur-översikt";
+    $lang_suser = "välj användare";
+    $lang_logout = "logga ut";
+    $lang_login = "Logga in";
+    $lang_username = "Användarnamn";
+    $lang_password = "Lösenord";
+    $lang_language = "Språk";
+    $lang_newinterval = "Ange nytt intervall (sekunder)";
+    $lang_api = "Kart-API";
+    $lang_language = "Språk";
+    $lang_units = "Enheter";
+    $lang_metric = "Metriska";
+    $lang_imperial = "Imperial/US";
+    break;
 }
 ?>
