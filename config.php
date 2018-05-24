@@ -49,10 +49,11 @@ $allow_registration = 1;
 $interval = 10; 
 
 // Default language
-// (en, pl, de)
+// (en, pl, de, sv)
 $lang = "en";
 //$lang = "pl";
 //$lang = "de";
+//$lang = "sv";
 
 // units
 $units = "metric";

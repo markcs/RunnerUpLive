@@ -95,6 +95,7 @@ $lang_form = '
 <option value="en"'.(($lang=="en")?' selected':'').'>English</option>
 <option value="pl"'.(($lang=="pl")?' selected':'').'>Polski</option>
 <option value="de"'.(($lang=="de")?' selected':'').'>Deutsch</option>
+<option value="sv"'.(($lang=="sv")?' selected':'').'>Svenska</option>
 </select>
 </form>
 ';
